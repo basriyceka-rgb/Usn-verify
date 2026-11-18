@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
+<title>สหพันธ์ USN | ระบบยืนยันตัวตน</title>
+<style>
+:root{--bg:#bfe9ff;--dot:#9fd8f7;--panel:#fffdf4;--ink:#2b2d42;--text:#2b2d42;--mute:#6b6f8d;--acc:#ff6b9d;--gold:#ffd23f;--blue:#4cc9f0;--bad:#ef476f;--ok:#06d6a0;--field:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1f3b;--dot:#262b52;--panel:#2a2f58;--ink:#0d0f24;--text:#fff8e7;--mute:#b9bde0;--field:#1b1f3b}}
+:root[data-theme="dark"]{--bg:#1b1f3b;--dot:#262b52;--panel:#2a2f58;--ink:#0d0f24;--text:#fff8e7;--mute:#b9bde0;--field:#1b1f3b}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:var(--bg);background-image:radial-gradient(var(--dot) 3px,transparent 3px);background-size:26px 26px;color:var(--text);font-family:"Mali","Itim","Sarabun","Noto Sans Thai",system-ui,sans-serif;font-size:16px;overflow-x:hidden}
+main{position:relative;max-width:680px;margin:0 auto;padding:22px 16px 60px}
+.badge{text-align:center;margin:10px 0 24px}
+.emblem{width:96px;height:96px;margin:0 auto 10px;border:4px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:22px;color:var(--ink);background:var(--gold);box-shadow:5px 5px 0 var(--ink);animation:wob 2.4s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg) translateY(-4px)}}
+h1{font-size:28px;margin:0;color:var(--ink);text-shadow:2px 2px 0 #fff;-webkit-text-stroke:0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) h1{color:var(--gold);text-shadow:2px 2px 0 var(--ink)}}
+:root[data-theme="dark"] h1{color:var(--gold);text-shadow:2px 2px 0 var(--ink)}
+.sub{color:var(--mute);font-size:14px;margin-top:4px;font-weight:700}
+.card{background:var(--panel);border:4px solid var(--ink);border-radius:26px;padding:22px;position:relative;box-shadow:8px 8px 0 var(--ink)}
+.tag{display:inline-block;font-size:13px;font-weight:800;color:var(--ink);background:var(--blue);border:3px solid var(--ink);padding:2px 12px;border-radius:99px;margin-bottom:10px;transform:rotate(-2deg)}
+h2{margin:6px 0 4px;font-size:22px}
+.note{color:var(--bad);font-size:15px;margin:0 0 14px;font-weight:700}
+label{display:block;margin:14px 0 6px;font-size:15px;font-weight:700}
+input,textarea{width:100%;background:var(--field);border:3px solid var(--ink);color:var(--text);border-radius:16px;padding:12px 14px;font:inherit;outline:none;transition:.15s}
+input:focus,textarea:focus{border-color:var(--acc);box-shadow:4px 4px 0 var(--acc);transform:translate(-1px,-1px)}
+textarea{min-height:90px;resize:vertical}
+button{font:inherit;cursor:pointer;border:4px solid var(--ink);background:var(--acc);color:#fff;padding:13px 18px;border-radius:18px;font-weight:800;width:100%;margin-top:18px;box-shadow:5px 5px 0 var(--ink);transition:transform .12s,box-shadow .12s;text-shadow:1px 1px 0 var(--ink)}
+button:hover{transform:translate(-2px,-2px) rotate(-.6deg);box-shadow:7px 7px 0 var(--ink)}
+button:active{transform:translate(4px,4px);box-shadow:1px 1px 0 var(--ink)}
+button.gold{background:var(--gold);color:var(--ink);text-shadow:none}
+button.ghost{background:var(--panel);color:var(--text);text-shadow:none;margin-top:12px;box-shadow:3px 3px 0 var(--ink);border-width:3px}
+.roles{display:grid;gap:16px}
+.role{text-align:left;padding:18px 20px;display:block;background:var(--blue);color:var(--ink);text-shadow:none}
+.role b{display:block;font-size:19px;margin-bottom:4px}
+.role span{font-weight:600;font-size:14px}
+.err{color:var(--bad);font-size:14px;min-height:20px;margin-top:8px;font-weight:800}
+.hidden{display:none!important}
+.loader{text-align:center;padding:36px 6px}
+.bar{height:26px;background:var(--field);border:4px solid var(--ink);border-radius:99px;overflow:hidden;margin:22px 0 10px}
+.bar i{display:block;height:100%;width:0;background:repeating-linear-gradient(45deg,var(--ok) 0 14px,#5af2c8 14px 28px);transition:width .2s}
+.mono{color:var(--mute);font-size:14px;min-height:20px;font-weight:700}
+.chk{display:flex;gap:10px;align-items:flex-start;margin-top:18px;padding:12px;border:3px dashed var(--ink);border-radius:16px;background:rgba(255,210,63,.35);font-size:14px}
+.chk input{width:22px;height:22px;margin-top:2px;flex:none;accent-color:var(--acc)}
+.done{text-align:center;padding:24px 6px}
+.done .big{width:96px;height:96px;margin:0 auto 12px;border:4px solid var(--ink);border-radius:50%;background:var(--ok);display:grid;place-items:center;font-size:52px;color:#fff;box-shadow:5px 5px 0 var(--ink);animation:pop .6s cubic-bezier(.3,1.8,.5,1)}
+@keyframes pop{from{transform:scale(0) rotate(-40deg)}}
+.ent{border:3px solid var(--ink);border-radius:20px;padding:14px;margin-top:14px;background:var(--field);box-shadow:4px 4px 0 var(--ink)}
+.ent h3{margin:0 0 8px;color:var(--acc);font-size:18px}
+.ent dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:0;font-size:14px}
+.ent dt{color:var(--mute);white-space:nowrap;font-weight:700}.ent dd{margin:0;word-break:break-word}
+.ent .why{margin-top:8px;padding-top:8px;border-top:3px dotted var(--ink);font-size:14px}
+.ent button{margin-top:10px;padding:6px 14px;background:var(--bad);width:auto;font-size:14px;box-shadow:3px 3px 0 var(--ink);border-width:3px}
+.ent .msg{font-size:13px;font-weight:800;margin-top:6px;color:var(--bad)}
+.lic{margin:14px 0 4px;padding:14px;border:4px solid var(--ink);border-radius:20px;background:var(--gold);color:var(--ink);font-weight:800;font-size:18px;box-shadow:5px 5px 0 var(--ink);animation:wob 2.4s ease-in-out infinite}
+#pf{text-align:left;margin:14px 0}
+#imp{margin-top:10px}
+.fade{animation:in .45s cubic-bezier(.3,1.5,.5,1)}
+@keyframes in{from{opacity:0;transform:translateY(24px) scale(.94)}}
+</style>
+</head>
+<body>
+<main>
+ <div class="badge"><div class="emblem">🌍 USN</div><h1>สหพันธ์ USN</h1><div class="sub">ระบบยืนยันตัวตนอย่างเป็นทางการ ✨</div></div>
+
+ <!-- หน้าแรก -->
+ <section id="home" class="card fade">
+  <span class="tag">SECURE ACCESS</span>
+  <h2>เลือกประเภทผู้เข้าใช้งาน</h2>
+  <p class="note">โปรดเลือกสถานะของคุณเพื่อดำเนินการต่อ</p>
+  <div class="roles">
+   <button class="role" id="goCountry"><b>🌐 ประเทศจินตนาการ</b><span>เริ่มยืนยันตัวตนเพื่อเข้าร่วมสหพันธ์</span></button>
+   <button class="role gold" id="goAdmin"><b>🛡️ ผู้ดูแลระบบ</b><span>ต้องใช้รหัสผ่านผู้ดูแลระบบ</span></button>
+  </div>
+ </section>
+
+ <!-- รหัสแอดมิน -->
+ <section id="adminLogin" class="card hidden fade">
+  <span class="tag">ADMIN</span>
+  <h2>เข้าสู่ระบบผู้ดูแล</h2>
+  <label for="pw">ใส่รหัสผู้ดูแลระบบ</label>
+  <input id="pw" type="password" autocomplete="off" placeholder="••••••">
+  <div class="err" id="pwErr"></div>
+  <button class="gold" id="pwGo">ยืนยันรหัส</button>
+  <button class="ghost" data-home>← กลับหน้าแรก</button>
+ </section>
+
+ <!-- แอดมิน -->
+ <section id="adminPanel" class="card hidden fade">
+  <span class="tag">ADMIN PANEL</span>
+  <h2>รายชื่อประเทศที่ยืนยันตัวตนแล้ว <span id="cnt" style="color:var(--gold)"></span></h2>
+  <textarea id="imp" placeholder="วางข้อความโปรไฟล์ที่ได้รับจากเพื่อนตรงนี้ (วางหลายคนพร้อมกันได้)..."></textarea>
+  <button id="impBtn">➕ นำเข้าโปรไฟล์</button><div class="mono" id="impSt"></div>
+  <input id="q" style="margin-top:14px" placeholder="🔍 ค้นหาชื่อประเทศ..." autocomplete="off">
+  <button class="gold" id="refresh" style="margin-top:10px">🔄 รีเฟรชรายชื่อ</button>
+  <div id="list"><div class="mono">กำลังโหลดข้อมูล...</div></div>
+  <button class="ghost" data-home>ออกจากระบบ</button>
+ </section>
+
+ <!-- ขั้น 1 -->
+ <section id="s1" class="card hidden fade">
+  <span class="tag">STEP 01 · ยืนยันตัวตน</span>
+  <h2>เริ่มยืนยันตัวตน</h2>
+  <p class="note">โปรดกรอกข้อมูลดังต่อไปนี้ (ความจริง!)</p>
+  <label for="f_name">ชื่อประเทศจินตนาการ</label>
+  <input id="f_name" placeholder="เช่น สาธารณรัฐอัสตาเรีย">
+  <label for="f_age">อายุ</label>
+  <input id="f_age" type="number" min="1" max="120" inputmode="numeric" placeholder="เช่น 15">
+  <label for="f_why">ทำไมถึงอยากเข้าสหพันธ์ USN</label>
+  <textarea id="f_why" placeholder="เล่าเหตุผลของคุณ..."></textarea>
+  <div class="err" id="e1"></div>
+  <button id="next1">ถัดไป ▶</button>
+  <button class="ghost" data-home>← กลับหน้าแรก</button>
+ </section>
+
+ <!-- เปลี่ยนหน้า -->
+ <section id="loading" class="card hidden fade">
+  <div class="loader"><span class="tag">PROCESSING</span><h2>ระบบกำลังเลื่อนไปหน้าถัดไป</h2>
+   <div class="bar"><i id="barI"></i></div><div class="mono" id="logT"></div></div>
+ </section>
+
+ <!-- ขั้น 2 -->
+ <section id="s2" class="card hidden fade">
+  <span class="tag">STEP 02 · แนะนำตัว</span>
+  <h2>แนะนำตัวให้รู้จักสักนิด!</h2>
+  <p class="note">กรอกให้ครบทุกช่อง และพิมพ์ตามจริง</p>
+  <div id="fields"></div>
+  <div class="chk"><input type="checkbox" id="real"><label for="real" style="margin:0">ฉันตรวจสอบแล้วว่าข้อมูลที่พิมพ์ถูกต้องและเป็นความจริง</label></div>
+  <div class="err" id="e2"></div>
+  <button class="gold" id="submit">✔ กรอกแบบฟอร์มเสร็จแล้ว</button>
+  <button class="ghost" id="back2">◀ ย้อนกลับ</button>
+ </section>
+
+ <!-- สำเร็จ -->
+ <section id="ok" class="card hidden fade">
+  <div class="done"><div class="big">✔</div><h2>ระบบได้บันทึกข้อมูลไว้แล้ว :)</h2>
+   <div class="lic">⏳ รอรับใบอนุญาตเข้าสหภาพนะจ้า~</div><p class="sub" id="okMsg"></p>
+   <div id="pf" class="ent"></div>
+   <div id="shareBox"><p class="note">📌 กดปุ่มด้านล่างเพื่อส่งโปรไฟล์ให้แอดมิน แล้วรอรับใบอนุญาต</p>
+    <button class="gold" id="shareBtn">📤 ส่งโปรไฟล์ให้แอดมิน</button>
+    <button class="ghost" id="copyBtn">📋 คัดลอกข้อความโปรไฟล์</button><div class="mono" id="shareSt"></div></div><button data-home>กลับหน้าแรก</button></div>
+ </section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const FIELDS=[
+ ["country","🌐 ชื่อประเทศ"],["gov","🏛️ ระบอบ"],["capital","🏙️ เมืองหลวงหลัก"],["lang","🗣️ ภาษา"],
+ ["cur","💱 สกุลเงิน"],["rate","📈 อัตราการแลกเปลี่ยน"],["leader","👑 ผู้นำสูงสุด"],["pm","🧑‍💼 นายก"],
+ ["prov","🗺️ จำนวนจังหวัดทั้งหมด"],["area","📐 ขนาดพื้นที่ (ตร.กม.)"],["pop","👥 จำนวนประชากร"],
+ ["gdp","💰 GDP"],["gdpc","📊 GDP ต่อหัว"],["army","⚔️ จำนวนกำลังพลประจำการ"]
+];
+const ADMIN_PW="USN123"; // ใช้เฉพาะโหมดเก็บในเครื่อง
+const API=""; // ใส่ลิงก์ Google Apps Script ตรงนี้ เพื่อให้ทุกคนใช้ข้อมูลร่วมกัน
+let adminPw="";
+async function api(b){
+ const r=await fetch(API,{method:"POST",body:JSON.stringify({pw:adminPw,...b})});
+ const j=await r.json();if(!j.ok)throw new Error(j.error||"ผิดพลาด");return j}
+const SECS=["home","adminLogin","adminPanel","s1","loading","s2","ok"];
+function show(id){SECS.forEach(s=>{const e=$(s);e.classList.toggle("hidden",s!==id);if(s===id){e.classList.remove("fade");void e.offsetWidth;e.classList.add("fade")}});scrollTo(0,0)}
+// สร้างช่องกรอก
+$("fields").innerHTML=FIELDS.map(([k,l])=>`<label for="g_${k}">${l}</label><input id="g_${k}" autocomplete="off">`).join("");
+
+let db=null,unsub=null,data1={};
+(async()=>{try{if(window.claude&&claude.use)db=await claude.use("db")}catch(e){db=null}})();
+
+// LocalStorage สำรอง (กรณีไม่มีฐานข้อมูลร่วม)
+const LS={get(){try{return JSON.parse(localStorage.getItem("usn_sub")||"[]")}catch(e){return[]}},set(v){try{localStorage.setItem("usn_sub",JSON.stringify(v))}catch(e){}}};
+
+document.querySelectorAll("[data-home]").forEach(b=>b.onclick=()=>{if(unsub){unsub();unsub=null}show("home")});
+$("goCountry").onclick=()=>show("s1");
+$("goAdmin").onclick=()=>{$("pw").value="";$("pwErr").textContent="";show("adminLogin")};
+$("pw").addEventListener("keydown",e=>{if(e.key==="Enter")$("pwGo").click()});
+$("pwGo").onclick=()=>{
+ if(API){adminPw=$("pw").value;show("adminPanel");loadAdmin();return}
+ if($("pw").value!==ADMIN_PW){$("pwErr").textContent="❌ รหัสไม่ถูกต้อง ปฏิเสธการเข้าถึง";return}
+ show("adminPanel");loadAdmin();
+};
+
+$("next1").onclick=()=>{
+ const n=$("f_name").value.trim(),a=$("f_age").value.trim(),w=$("f_why").value.trim();
+ if(!n||!a||!w){$("e1").textContent="⚠️ กรุณากรอกให้ครบทุกช่อง";return}
+ if(isNaN(+a)||+a<1||+a>120){$("e1").textContent="⚠️ อายุไม่ถูกต้อง";return}
+ $("e1").textContent="";data1={nation:n,age:a,why:w};
+ if(!$("g_country").value)$("g_country").value=n;
+ runLoading();
+};
+function runLoading(){
+ show("loading");const logs=["กำลังตรวจสอบข้อมูล...","เชื่อมต่อฐานข้อมูลสหพันธ์...","ยืนยันตัวตนสำเร็จ ✔","กำลังเลื่อนไปหน้าถัดไป..."];
+ let p=0;const t=setInterval(()=>{p+=4;$("barI").style.width=p+"%";$("logT").textContent=logs[Math.min(3,Math.floor(p/26))];
+  if(p>=100){clearInterval(t);setTimeout(()=>show("s2"),250)}},60);
+ $("barI").style.width="0";
+}
+$("back2").onclick=()=>show("s1");
+
+$("submit").onclick=async()=>{
+ const vals={};let miss=false;
+ FIELDS.forEach(([k])=>{vals[k]=$("g_"+k).value.trim();if(!vals[k])miss=true});
+ if(miss){$("e2").textContent="⚠️ กรุณากรอกให้ครบทุกช่อง";return}
+ if(!$("real").checked){$("e2").textContent="⚠️ โปรดติ๊กยืนยันว่าพิมพ์ตามจริง";return}
+ $("e2").textContent="";
+ const rec={...data1,...vals,ts:Date.now(),pid:"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
+ let shared=false;
+ $("submit").disabled=true;
+ try{if(API){await api({action:"add",id:"r"+rec.ts+Math.random().toString(36).slice(2,6),data:rec});shared=true}else if(db){await db.collection("submissions").add(rec);shared=true}}catch(e){$("submit").disabled=false;$("e2").textContent="❌ ส่งไม่สำเร็จ: "+((e&&(e.message||e.code))||"ไม่ทราบสาเหตุ")+" (ลองกดส่งอีกครั้ง)";return}
+ $("submit").disabled=false;
+ if(!shared){const l=LS.get();rec.id="l"+rec.ts;l.push(rec);LS.set(l)}
+ $("okMsg").textContent="ยินดีต้อนรับ "+data1.nation+" สู่สหพันธ์ USN";showProfile(rec);
+ FIELDS.forEach(([k])=>$("g_"+k).value="");["f_name","f_age","f_why"].forEach(i=>$(i).value="");$("real").checked=false;
+ show("ok");
+};
+
+let lastText="";
+function profText(r){
+ const L=["🌐 โปรไฟล์ประเทศ - สหพันธ์ USN","ชื่อประเทศ (ยืนยัน): "+r.nation,"อายุ: "+r.age,"เหตุผลที่อยากเข้า: "+r.why];
+ FIELDS.forEach(([k,l])=>L.push(l+": "+r[k]));
+ L.push("#USN:"+btoa(unescape(encodeURIComponent(JSON.stringify(r)))));
+ return L.join("\n")}
+function showProfile(r){
+ const box=$("pf");box.innerHTML="";
+ const h=document.createElement("h3");h.textContent="🪪 บัตรประจำตัวประเทศ: "+r.nation;box.appendChild(h);
+ const dl=document.createElement("dl");
+ const add=(k,v)=>{const a=document.createElement("dt"),b=document.createElement("dd");a.textContent=k;b.textContent=v||"-";dl.append(a,b)};
+ add("อายุ",r.age);FIELDS.forEach(([k,l])=>add(l,r[k]));box.appendChild(dl);
+ lastText=profText(r);$("shareBox").classList.toggle("hidden",!!API);$("shareSt").textContent=""}
+async function copyIt(){
+ try{await navigator.clipboard.writeText(lastText);$("shareSt").textContent="✔ คัดลอกแล้ว นำไปวางส่งให้แอดมินในแชทได้เลย"}
+ catch(e){const t=document.createElement("textarea");t.value=lastText;document.body.appendChild(t);t.select();
+  try{document.execCommand("copy");$("shareSt").textContent="✔ คัดลอกแล้ว นำไปวางส่งให้แอดมินในแชทได้เลย"}catch(x){$("shareSt").textContent="คัดลอกไม่ได้ ลองใหม่อีกครั้ง"}t.remove()}}
+$("shareBtn").onclick=async()=>{try{if(navigator.share){await navigator.share({title:"โปรไฟล์ USN",text:lastText});return}}catch(e){if(e&&e.name==="AbortError")return}copyIt()};
+$("copyBtn").onclick=copyIt;
+$("impBtn").onclick=()=>{
+ const m=$("imp").value.match(/#USN:[A-Za-z0-9+\/=]+/g);
+ if(!m){$("impSt").textContent="⚠️ ไม่พบรหัสโปรไฟล์ในข้อความ";return}
+ const l=LS.get();let ad=0,dup=0;
+ m.forEach(x=>{try{const r=JSON.parse(decodeURIComponent(escape(atob(x.slice(5)))));
+  if(l.some(i=>i.pid&&i.pid===r.pid)){dup++;return}r.id="i"+r.pid;l.push(r);ad++}catch(e){}});
+ LS.set(l);$("imp").value="";$("impSt").textContent="✔ นำเข้า "+ad+" รายการ"+(dup?" (ซ้ำ "+dup+")":"");loadAdmin()};
+let ALL=[];
+$("q").oninput=()=>draw();$("refresh").onclick=()=>loadAdmin();
+function render(rows){ALL=rows;draw()}
+function draw(){
+ const q=($("q").value||"").trim().toLowerCase();
+ const rows=ALL.filter(r=>!q||String(r.data.nation||"").toLowerCase().includes(q)||String(r.data.country||"").toLowerCase().includes(q));
+ $("cnt").textContent="("+rows.length+(q?"/"+ALL.length:"")+")";
+ const box=$("list");box.innerHTML="";
+ if(!rows.length){box.innerHTML='<div class="mono">'+(q?"ไม่พบประเทศที่ค้นหา":"ยังไม่มีผู้ยืนยันตัวตน")+'</div>';return}
+ rows.forEach(r=>{
+  const d=document.createElement("div");d.className="ent";
+  const h=document.createElement("h3");h.textContent="🌐 "+(r.data.nation||"-");d.appendChild(h);
+  const dl=document.createElement("dl");
+  const add=(k,v)=>{const a=document.createElement("dt"),b=document.createElement("dd");a.textContent=k;b.textContent=v||"-";dl.append(a,b)};
+  add("อายุ",r.data.age);FIELDS.forEach(([k,l])=>add(l,r.data[k]));d.appendChild(dl);
+  const w=document.createElement("div");w.className="why";w.textContent="💬 เหตุผล: "+(r.data.why||"-");d.appendChild(w);
+  const x=document.createElement("button"),m=document.createElement("div");m.className="msg";let armed=false;x.textContent="🗑 ลบ";
+  x.onclick=async()=>{
+   if(!armed){armed=true;x.textContent="แน่ใจนะ? กดอีกครั้งเพื่อลบ";setTimeout(()=>{armed=false;x.textContent="🗑 ลบ"},4000);return}
+   x.disabled=true;x.textContent="กำลังลบ...";
+   try{if(r.local){LS.set(LS.get().filter(i=>i.id!==r.id));loadAdmin()}else if(API){await api({action:"delete",id:r.id});loadAdmin()}else{await db.collection("submissions").doc(r.id).delete();d.remove()}}
+   catch(e){x.disabled=false;armed=false;x.textContent="🗑 ลบ";m.textContent="ลบไม่สำเร็จ: "+((e&&(e.message||e.code))||"ไม่ทราบสาเหตุ")}};
+  d.appendChild(x);d.appendChild(m);box.appendChild(d)});
+}
+function loadAdmin(){
+ if(unsub){unsub();unsub=null}
+ if(API){$("list").innerHTML='<div class="mono">กำลังโหลดข้อมูล...</div>';
+  api({action:"list"}).then(j=>render(j.rows.map(r=>({id:r.id,data:r.data})))).catch(e=>{$("list").innerHTML="";const m=document.createElement("div");m.className="err";m.textContent="❌ โหลดไม่สำเร็จ: "+e.message;$("list").appendChild(m)});return}
+ const local=LS.get().map(i=>({id:i.id,data:i,local:true}));
+ if(!db){render(local);return}
+ let timer=setTimeout(()=>render(local),10000);
+ try{unsub=db.collection("submissions").orderBy("ts","desc").onSnapshot(s=>{clearTimeout(timer);
+   render(s.docs.map(d=>({id:d.id,data:d.data()||{}})).concat(local))},()=>{clearTimeout(timer);render(local)})}
+ catch(e){clearTimeout(timer);render(local)}
+}
+</script>
+</body>
+</html>
